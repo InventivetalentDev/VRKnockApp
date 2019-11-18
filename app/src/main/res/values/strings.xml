@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">VRKnock</string>
+    <string name="title_activity_host_info">HostInfoActivity</string>
+</resources>

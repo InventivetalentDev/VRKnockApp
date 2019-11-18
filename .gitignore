@@ -1,0 +1,16 @@
+*.iml
+.gradle
+gradle.properties
+/local.properties
+/.idea/libraries
+/.idea/caches
+/.idea/*.xml
+.DS_Store
+*/build
+/release
+/debug
+/captures
+.externalNativeBuild
+/gradle/wrapper
+*/google-services.json
+crowdin.properties
