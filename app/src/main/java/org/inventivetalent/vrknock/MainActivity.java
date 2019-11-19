@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
 		isConnected = true;
 
 		progressBar.setVisibility(View.INVISIBLE);
+		knockButton.setImageResource(R.drawable.ic_knocking_hand_128dp);
 		knockButton.setEnabled(true);
 		statusTextView.setText("Connected!");
 	}
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
 		progressBar.setVisibility(View.INVISIBLE);
 		knockButton.setEnabled(false);
+		knockButton.setImageResource(R.drawable.ic_knocking_hand_grey_128dp);
 		statusTextView.setText("Failed to connect");
 	}
 
