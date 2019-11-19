@@ -78,7 +78,9 @@ public class MainActivity extends AppCompatActivity {
 	void reconnect() {
 		knockButton.setEnabled(false);
 
-		if(hostIp==null||connectCode==null)return;
+		if (hostIp == null || connectCode == null) {
+			startHostInfoActivity();
+		}
 
 		progressBar.setVisibility(View.VISIBLE);
 
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			protected void onPostExecute(String s) {
 				if (s != null) {
-					Log.i(TAG, "Found Host at " + s+":"+PORT);
+					Log.i(TAG, "Found Host at " + s + ":" + PORT);
 					onConnectionEstablished();
 				} else {
 					onConnectionLost();
@@ -136,11 +138,15 @@ public class MainActivity extends AppCompatActivity {
 				reconnect();
 				return true;
 			case R.id.setHostItem:
-				startActivity(new Intent(this, HostInfoActivity.class));
+				startHostInfoActivity();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	void startHostInfoActivity() {
+		startActivity(new Intent(this, HostInfoActivity.class));
 	}
 
 	abstract class ServerDiscoveryTask extends AsyncTask<Void, Void, String> {
@@ -161,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		boolean testIp(String host) {
-			Log.i("VRKnockDiscover", "Testing " + host + ":"+PORT+"...");
+			Log.i("VRKnockDiscover", "Testing " + host + ":" + PORT + "...");
 			try {
 				URLConnection connection = new URL("http", host, PORT, "status").openConnection();
 				connection.setConnectTimeout(1000);
