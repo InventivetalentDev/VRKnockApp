@@ -11,7 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
 	public static final String TAG = "VRKnock";
 
-	Button      knockButton;
+	ImageButton knockButton;
 	ProgressBar progressBar;
 	TextView    statusTextView;
 
