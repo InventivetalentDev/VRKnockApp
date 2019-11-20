@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,12 +23,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 	ImageButton knockButton;
 	ProgressBar progressBar;
 	TextView    statusTextView;
-	EditText messageEditText;
+	EditText    messageEditText;
 
 	String hostIp      = null;
 	String connectCode = null;
@@ -110,13 +112,17 @@ public class MainActivity extends AppCompatActivity {
 		statusTextView.setText("Connected!");
 	}
 
-	void onConnectionLost() {
+	void onConnectionLost(String reason) {
 		isConnected = false;
 
 		progressBar.setVisibility(View.INVISIBLE);
 		knockButton.setEnabled(false);
 		knockButton.setImageResource(R.drawable.ic_knocking_hand_grey_128dp);
-		statusTextView.setText("Failed to connect");
+		statusTextView.setText(reason);
+	}
+
+	void onConnectionLost() {
+		onConnectionLost("Failed to connect");
 	}
 
 	void sendKnock() {
@@ -155,6 +161,58 @@ public class MainActivity extends AppCompatActivity {
 		startActivity(new Intent(this, HostInfoActivity.class));
 	}
 
+	static JSONObject readJson(InputStream in) {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+		StringBuilder all = new StringBuilder();
+		String line;
+		try {
+			while ((line = reader.readLine()) != null) {
+				all.append(line);
+			}
+		} catch (IOException e) {
+			Log.e(TAG, "Failed to read json", e);
+		}
+
+		try {
+			return new JSONObject(all.toString());
+		} catch (JSONException e) {
+			Log.e(TAG, "Failed to parse json", e);
+		}
+		return null;
+	}
+
+	static JSONObject postJson(String host, int port, String path, JSONObject body) {
+		try {
+			HttpURLConnection connection = (HttpURLConnection) new URL("http", host, port, path).openConnection();
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Type", "application/json");
+
+			String jsonString = body.toString();
+			System.out.println(jsonString);
+
+			OutputStream out = connection.getOutputStream();
+			out.write(jsonString.getBytes("utf8"));
+			out.flush();
+			out.close();
+
+			//TODO: might wanna check the returned data
+			InputStream in = connection.getInputStream();
+			if(connection.getContentLength()>2) {
+				JSONObject json = readJson(in);
+				if (json != null) {
+					Log.i(TAG, json.toString());
+					return json;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	abstract class ServerDiscoveryTask extends AsyncTask<Void, Void, String> {
 
 		@Override
@@ -174,20 +232,30 @@ public class MainActivity extends AppCompatActivity {
 
 		boolean testIp(String host) {
 			Log.i("VRKnockDiscover", "Testing " + host + ":" + PORT + "...");
+
 			try {
-				URLConnection connection = new URL("http", host, PORT, "status").openConnection();
-				connection.setConnectTimeout(1000);
-				connection.setReadTimeout(1000);
-				connection.setDoInput(true);
-				InputStream in = connection.getInputStream();
+				JSONObject body = new JSONObject();
+				body.put("code", connectCode);
+				JSONObject json = postJson(host, PORT, "status", body);
+				if(json!=null) {
+					final JSONObject status = json.getJSONObject("Status");
+					if (status.getInt("status") != 0) {
+						final String msg =status.getString("msg");
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();
+							}
+						});
+						return false;
+					}
 
-				//TODO: might wanna check returned data
-				return connection.getContentLength() > 4;
-			} catch (IOException e) {
+					return true;
+				}
+			} catch (JSONException e) {
 				e.printStackTrace();
-				return false;
 			}
-
+return false;
 		}
 
 	}
@@ -199,32 +267,32 @@ public class MainActivity extends AppCompatActivity {
 			KnockData knockData = knockDatas[0];
 			Log.i("VRKnocker", "Sending Knock to " + hostIp);
 			try {
-				HttpURLConnection connection = (HttpURLConnection) new URL("http", hostIp, PORT, "triggerKnock").openConnection();
-				connection.setDoInput(true);
-				connection.setDoOutput(true);
-				connection.setRequestMethod("POST");
-				connection.setRequestProperty("Content-Type", "application/json");
+				JSONObject body = new JSONObject();
+				body.put("code", connectCode);
+				body.put("message", knockData.message);
 
-				JSONObject jsonObject = new JSONObject();
-				jsonObject.put("code", connectCode);
-				jsonObject.put("message", knockData.message);
+				JSONObject json = postJson(hostIp, PORT, "triggerKnock", body);
+				if (json != null) {
+					JSONObject data = json.getJSONObject("Data");
 
-				String jsonString = jsonObject.toString();
-				System.out.println(jsonString);
+					if (data.getInt("status") != 0) {
+						final String msg =data.getString("msg");
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();
+							}
+						});
+						return false;
+					}
 
-				OutputStream out = connection.getOutputStream();
-				out.write(jsonString.getBytes("utf8"));
-				out.flush();
-				out.close();
+					return true;
+				}
 
-				//TODO: might wanna check the returned data
-				connection.getInputStream();
-
-				return true;
-			} catch (IOException | JSONException e) {
+			} catch ( JSONException e) {
 				e.printStackTrace();
-				return false;
 			}
+			return false;
 		}
 
 		@Override
