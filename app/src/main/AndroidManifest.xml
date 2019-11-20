@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="org.inventivetalent.vrknock"
-        >
+        package="org.inventivetalent.vrknock">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
+            android:networkSecurityConfig="@xml/network_security_config"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
-            android:usesCleartextTraffic="true"
-            android:networkSecurityConfig="@xml/network_security_config">
-        
+            android:usesCleartextTraffic="true">
+        <activity android:name=".CodeScannerActivity"></activity>
         <activity
                 android:name=".HostInfoActivity"
                 android:label="@string/title_activity_host_info"
