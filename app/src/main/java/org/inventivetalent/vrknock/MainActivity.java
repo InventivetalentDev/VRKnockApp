@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 	ImageButton knockButton;
 	ProgressBar progressBar;
 	TextView    statusTextView;
+	EditText messageEditText;
 
 	String hostIp      = null;
 	String connectCode = null;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
 		progressBar = findViewById(R.id.progressBar);
 		statusTextView = findViewById(R.id.statusTextView);
+		messageEditText = findViewById(R.id.messageEditText);
 
 	}
 
@@ -120,8 +123,11 @@ public class MainActivity extends AppCompatActivity {
 		if (!isConnected) {
 			return;
 		}
-		//TODO: custom message
-		new KnockerTask().execute(new KnockData("I am a knock!"));
+		String message = messageEditText.getText().toString();
+		if (message.length() == 0) {
+			message = "Someone Wants Your Attention!";
+		}
+		new KnockerTask().execute(new KnockData(message));
 	}
 
 	@Override
