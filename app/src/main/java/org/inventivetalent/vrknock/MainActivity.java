@@ -273,7 +273,7 @@ return false;
 
 				JSONObject json = postJson(hostIp, PORT, "triggerKnock", body);
 				if (json != null) {
-					JSONObject data = json.getJSONObject("Data");
+					JSONObject data = json.getJSONObject("Status");
 
 					if (data.getInt("status") != 0) {
 						final String msg =data.getString("msg");
