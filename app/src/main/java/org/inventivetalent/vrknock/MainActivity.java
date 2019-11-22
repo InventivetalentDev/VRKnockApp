@@ -3,6 +3,7 @@ package org.inventivetalent.vrknock;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -151,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
 				return true;
 			case R.id.setHostItem:
 				startHostInfoActivity();
+				return true;
+			case R.id.downloadServer:
+				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://yeleha.co/vrknock-server-download")));
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
