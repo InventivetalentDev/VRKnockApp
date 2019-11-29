@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
 	void reconnect() {
 		knockButton.setEnabled(false);
+		statusTextView.setText("Searching host...");
 
 		if (hostIp == null || connectCode == null) {
 			startHostInfoActivity();
