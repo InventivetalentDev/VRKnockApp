@@ -105,12 +105,21 @@ public class MainActivity extends AppCompatActivity {
 		}.execute();
 	}
 
+	void enableButton() {
+		knockButton.setImageResource(R.drawable.ic_knocking_hand_128dp);
+		knockButton.setEnabled(true);
+	}
+
+	void disableButton() {
+		knockButton.setEnabled(false);
+		knockButton.setImageResource(R.drawable.ic_knocking_hand_grey_128dp);
+	}
+
 	void onConnectionEstablished() {
 		isConnected = true;
 
 		progressBar.setVisibility(View.INVISIBLE);
-		knockButton.setImageResource(R.drawable.ic_knocking_hand_128dp);
-		knockButton.setEnabled(true);
+		enableButton();
 		statusTextView.setText("Connected!");
 	}
 
@@ -118,8 +127,7 @@ public class MainActivity extends AppCompatActivity {
 		isConnected = false;
 
 		progressBar.setVisibility(View.INVISIBLE);
-		knockButton.setEnabled(false);
-		knockButton.setImageResource(R.drawable.ic_knocking_hand_grey_128dp);
+		disableButton();
 		statusTextView.setText(reason);
 	}
 
@@ -268,6 +276,13 @@ return false;
 	class KnockerTask extends AsyncTask<KnockData, Void, Boolean> {
 
 		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+
+			disableButton();
+		}
+
+		@Override
 		protected Boolean doInBackground(KnockData... knockDatas) {
 			KnockData knockData = knockDatas[0];
 			Log.i("VRKnocker", "Sending Knock to " + hostIp);
@@ -291,6 +306,11 @@ return false;
 						return false;
 					}
 
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException ignored) {
+					}
+
 					return true;
 				}
 
@@ -306,6 +326,8 @@ return false;
 
 			if (!aBoolean) {
 				onConnectionLost();
+			} else {
+				enableButton();
 			}
 		}
 	}
