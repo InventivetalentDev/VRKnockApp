@@ -295,14 +295,15 @@ return false;
 				if (json != null) {
 					JSONObject data = json.getJSONObject("Status");
 
+					final String msg =data.getString("msg");
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();
+						}
+					});
+
 					if (data.getInt("status") != 0) {
-						final String msg =data.getString("msg");
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();
-							}
-						});
 						return false;
 					}
 
