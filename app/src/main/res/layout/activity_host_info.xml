@@ -22,7 +22,7 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
-                android:text="Scan Code" />
+                android:text="@string/scan_code" />
 
         <EditText
                 android:id="@+id/codeEditText"
@@ -34,7 +34,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:ems="10"
-                android:hint="Connection Code"
+                android:hint="@string/connection_code"
                 android:inputType="textPersonName" />
 
         <EditText
@@ -47,7 +47,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:ems="10"
-                android:hint="Host IP"
+                android:hint="@string/host_ip"
                 android:inputType="textPersonName" />
 
         <Button
@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="48dp"
-                android:text="Done" />
+                android:text="@string/done" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
