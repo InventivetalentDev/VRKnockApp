@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 	ImageButton knockButton;
 	ProgressBar progressBar;
 	TextView    statusTextView;
+	TextView 	activityTextView;
 	EditText    messageEditText;
 
 	String hostIp      = null;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
 		progressBar = findViewById(R.id.progressBar);
 		statusTextView = findViewById(R.id.statusTextView);
+		activityTextView = findViewById(R.id.activityTextView);
 		messageEditText = findViewById(R.id.messageEditText);
 
 	}
@@ -139,6 +141,16 @@ public class MainActivity extends AppCompatActivity {
 		progressBar.setVisibility(View.INVISIBLE);
 		disableButton();
 		statusTextView.setText(res);
+	}
+
+	void updateActivity(String activity) {
+		if (activity == null||activity.isEmpty()) {
+			activityTextView.setText("");
+		} else if ("idle".equalsIgnoreCase(activity)) {
+			activityTextView.setText(R.string.currently_idle);
+		}else {
+			activityTextView.setText(getString(R.string.currently_playing, activity));
+		}
 	}
 
 	void onConnectionLost() {
@@ -262,6 +274,10 @@ public class MainActivity extends AppCompatActivity {
 				JSONObject json = postJson(host, PORT, "status", body);
 				if(json!=null) {
 					final JSONObject status = json.getJSONObject("Status");
+
+
+					updateActivity(status.getString("game"));
+
 					if (status.getInt("status") != 0) {
 						final String msg =status.getString("msg");
 						runOnUiThread(new Runnable() {
@@ -312,6 +328,8 @@ public class MainActivity extends AppCompatActivity {
 							Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();
 						}
 					});
+
+					updateActivity(data.getString("game"));
 
 					if (data.getInt("status") != 0) {
 						return false;

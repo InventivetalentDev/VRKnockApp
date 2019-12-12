@@ -11,4 +11,6 @@
     <string name="message_to_show">Message to Show</string>
     <string name="failed_to_connect">Failed to connect!</string>
     <string name="connected">Connected!</string>
+    <string name="currently_idle">Currently Idle</string>
+    <string name="currently_playing">Currently Playing %s</string>
 </resources>
