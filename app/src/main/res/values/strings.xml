@@ -8,4 +8,5 @@
     <string name="connection_code">Connection Code</string>
     <string name="host_ip">Host IP</string>
     <string name="done">Done</string>
+    <string name="message_to_show">Message to Show</string>
 </resources>
