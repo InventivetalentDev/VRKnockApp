@@ -83,6 +83,7 @@
             android:layout_marginBottom="32dp"
             android:ems="10"
             android:hint="@string/message_to_show"
+            android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM"
             android:inputType="textShortMessage"
             android:text="@string/default_notification_message"
             app:layout_constraintBottom_toBottomOf="parent"
