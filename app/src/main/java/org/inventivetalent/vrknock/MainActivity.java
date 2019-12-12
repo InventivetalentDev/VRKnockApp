@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 	ImageButton knockButton;
 	ProgressBar progressBar;
 	TextView    statusTextView;
-	TextView 	activityTextView;
+	TextView    activityTextView;
 	EditText    messageEditText;
 
 	String hostIp      = null;
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 		statusTextView.setText(reason);
 	}
 
-	void onConnectionLost(@StringRes int res){
+	void onConnectionLost(@StringRes int res) {
 		isConnected = false;
 
 		progressBar.setVisibility(View.INVISIBLE);
@@ -144,11 +144,11 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	void updateActivity(String activity) {
-		if (activity == null||activity.isEmpty()) {
+		if (activity == null || activity.isEmpty()) {
 			activityTextView.setText("");
 		} else if ("idle".equalsIgnoreCase(activity)) {
 			activityTextView.setText(R.string.currently_idle);
-		}else {
+		} else {
 			activityTextView.setText(getString(R.string.currently_playing, activity));
 		}
 	}
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
 
 			//TODO: might wanna check the returned data
 			InputStream in = connection.getInputStream();
-			if(connection.getContentLength()>2) {
+			if (connection.getContentLength() > 2) {
 				JSONObject json = readJson(in);
 				if (json != null) {
 					Log.i(TAG, json.toString());
@@ -272,20 +272,20 @@ public class MainActivity extends AppCompatActivity {
 				JSONObject body = new JSONObject();
 				body.put("code", connectCode);
 				JSONObject json = postJson(host, PORT, "status", body);
-				if(json!=null) {
+				if (json != null) {
 					final JSONObject status = json.getJSONObject("Status");
 
-
-					updateActivity(status.getString("game"));
+					final String msg = status.getString("msg");
+					final String game = status.getString("game");
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+							updateActivity(game);
+						}
+					});
 
 					if (status.getInt("status") != 0) {
-						final String msg =status.getString("msg");
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();
-							}
-						});
 						return false;
 					}
 
@@ -321,15 +321,15 @@ public class MainActivity extends AppCompatActivity {
 				if (json != null) {
 					JSONObject data = json.getJSONObject("Status");
 
-					final String msg =data.getString("msg");
+					final String msg = data.getString("msg");
+					final String game = data.getString("game");
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();
+							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+							updateActivity(game);
 						}
 					});
-
-					updateActivity(data.getString("game"));
 
 					if (data.getInt("status") != 0) {
 						return false;
@@ -343,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
 					return true;
 				}
 
-			} catch ( JSONException e) {
+			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 			return false;
