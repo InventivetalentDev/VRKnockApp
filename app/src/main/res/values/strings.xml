@@ -9,4 +9,6 @@
     <string name="host_ip">Host IP</string>
     <string name="done">Done</string>
     <string name="message_to_show">Message to Show</string>
+    <string name="failed_to_connect">Failed to connect!</string>
+    <string name="connected">Connected!</string>
 </resources>

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONException;
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
 	void reconnect() {
 		knockButton.setEnabled(false);
-		statusTextView.setText("Searching host...");
+		statusTextView.setText(R.string.searching_host);
 
 		if (hostIp == null || connectCode == null) {
 			startHostInfoActivity();
@@ -120,9 +121,10 @@ public class MainActivity extends AppCompatActivity {
 
 		progressBar.setVisibility(View.INVISIBLE);
 		enableButton();
-		statusTextView.setText("Connected!");
+		statusTextView.setText(R.string.connected);
 	}
 
+	@Deprecated
 	void onConnectionLost(String reason) {
 		isConnected = false;
 
@@ -131,8 +133,16 @@ public class MainActivity extends AppCompatActivity {
 		statusTextView.setText(reason);
 	}
 
+	void onConnectionLost(@StringRes int res){
+		isConnected = false;
+
+		progressBar.setVisibility(View.INVISIBLE);
+		disableButton();
+		statusTextView.setText(res);
+	}
+
 	void onConnectionLost() {
-		onConnectionLost("Failed to connect");
+		onConnectionLost(R.string.failed_to_connect);
 	}
 
 	void sendKnock() {
@@ -141,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
 		}
 		String message = messageEditText.getText().toString();
 		if (message.length() == 0) {
-			message = "Someone Wants Your Attention!";
+			message = getString(R.string.default_notification_message);
 		}
 		new KnockerTask().execute(new KnockData(message));
 	}
@@ -268,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-return false;
+			return false;
 		}
 
 	}
