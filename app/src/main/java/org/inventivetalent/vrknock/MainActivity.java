@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	void updateActivity(String activity) {
-		if (activity == null || activity.isEmpty()) {
+		if (activity == null || activity.isEmpty() || "null".equals(activity)) {
 			activityTextView.setText("");
 		} else if ("idle".equalsIgnoreCase(activity)) {
 			activityTextView.setText(R.string.currently_idle);
