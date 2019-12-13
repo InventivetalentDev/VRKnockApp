@@ -22,6 +22,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
 		activityTextView = findViewById(R.id.activityTextView);
 		messageEditText = findViewById(R.id.messageEditText);
 
+		MobileAds.initialize(this, "ca-app-pub-2604356629473365~1808998787");
+
+		final AdView adView1 = findViewById(R.id.homeAdView);
+		adView1.loadAd(new AdRequest.Builder().build());
 	}
 
 	@SuppressLint("StaticFieldLeak")
