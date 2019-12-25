@@ -1,14 +1,15 @@
 package org.inventivetalent.vrknock;
 
 import android.content.Context;
+import android.net.Uri;
 
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -24,4 +25,21 @@ public class ExampleInstrumentedTest {
 
 		assertEquals("org.inventivetalent.vrknock", appContext.getPackageName());
 	}
+
+	@Test
+	public void oldUrlTest() {
+		String url = "http://192.168.178.45/acode";
+		Uri uri = Uri.parse(url);
+		assertEquals("192.168.178.45", uri.getHost());
+		assertEquals("acode",uri.getPathSegments().get(0));
+	}
+
+	@Test
+	public void newUrlTest() {
+		String url = "https://vrknock.app/192.168.178.45/acode";
+		Uri uri = Uri.parse(url);
+		assertEquals("192.168.178.45", uri.getPathSegments().get(0));
+		assertEquals("acode",uri.getPathSegments().get(1));
+	}
+
 }

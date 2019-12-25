@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         package="org.inventivetalent.vrknock">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,22 +16,97 @@
             android:usesCleartextTraffic="true">
         <meta-data
                 android:name="com.google.android.gms.ads.APPLICATION_ID"
-                android:value="ca-app-pub-2604356629473365~1808998787"/>
+                android:value="ca-app-pub-2604356629473365~1808998787" />
+
         <activity android:name=".CodeScannerActivity"></activity>
         <activity
                 android:name=".HostInfoActivity"
                 android:label="@string/title_activity_host_info"
                 android:parentActivityName=".MainActivity"
                 android:theme="@style/AppTheme.NoActionBar">
+            <tools:validation testUrl="https://vrknock.app/settings" />
+            <tools:validation testUrl="http://vrknock.app/settings" />
+
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value="org.inventivetalent.vrknock.MainActivity" />
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:scheme="https"
+                        android:host="vrknock.app"
+                        android:path="/settings" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:scheme="http"
+                        android:host="vrknock.app"
+                        android:path="/settings" />
+            </intent-filter>
         </activity>
         <activity android:name=".MainActivity">
+            <tools:validation testUrl="http://vrknock.app" />
+            <tools:validation testUrl="https://vrknock.app" />
+            <tools:validation testUrl="https://vrknock.app/192.168.178.15/testcodee" />
+            <tools:validation testUrl="https://vrknock.app/192.168.178.15/testcode" />
+            <tools:validation testUrl="http://vrknock.app/192.168.178.15/testcode" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:scheme="https"
+                        android:host="vrknock.app"
+                        android:pathPattern="/.*/.*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:scheme="http"
+                        android:host="vrknock.app" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:scheme="https"
+                        android:host="vrknock.app" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:scheme="http"
+                        android:host="vrknock.app"
+                        android:pathPattern="/.*/.*" />
             </intent-filter>
         </activity>
     </application>

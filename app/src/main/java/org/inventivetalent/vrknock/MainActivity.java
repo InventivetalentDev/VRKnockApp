@@ -36,6 +36,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -78,6 +79,31 @@ public class MainActivity extends AppCompatActivity {
 
 		final AdView adView1 = findViewById(R.id.homeAdView);
 		adView1.loadAd(new AdRequest.Builder().build());
+
+		// ATTENTION: This was auto-generated to handle app links.
+		Intent appLinkIntent = getIntent();
+		String appLinkAction = appLinkIntent.getAction();
+		System.out.println("appLinkAction: "+appLinkAction);
+		Uri appLinkData = appLinkIntent.getData();
+		System.out.println("appLinkData: "+appLinkData);
+		if(appLinkData!=null) {
+			List<String> pathSegments = appLinkData.getPathSegments();
+			System.out.println(pathSegments);
+			if (pathSegments.size() > 0) {
+				if (pathSegments.size() >= 2) {
+					hostIp = pathSegments.get(0);
+					connectCode = pathSegments.get(1);
+
+					SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+					SharedPreferences.Editor editor = preferences.edit();
+					editor.putString("hostIp", hostIp);
+					editor.putString("connectCode", connectCode);
+					editor.apply();
+
+					reconnect();
+				}
+			}
+		}
 	}
 
 	@SuppressLint("StaticFieldLeak")
