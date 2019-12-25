@@ -119,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	void reconnect() {
+		Toast.makeText(this, R.string.connecting, Toast.LENGTH_LONG).show();
+
 		knockButton.setEnabled(false);
 		statusTextView.setText(R.string.searching_host);
 
