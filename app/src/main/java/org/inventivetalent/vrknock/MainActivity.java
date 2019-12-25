@@ -3,6 +3,8 @@ package org.inventivetalent.vrknock;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -54,11 +56,19 @@ public class MainActivity extends AppCompatActivity {
 	boolean isConnected = false;
 
 	public static final int PORT = 16945;
+	public static String appVersion = "0.0.0";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		try {
+			PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+			appVersion = pInfo.versionName;
+		} catch (PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
 
 		knockButton = findViewById(R.id.knockButton);
 		knockButton.setOnClickListener(new View.OnClickListener() {
@@ -307,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
 			try {
 				JSONObject body = new JSONObject();
 				body.put("code", connectCode);
+				body.put("version", appVersion);
 				JSONObject json = postJson(host, PORT, "status", body);
 				if (json != null) {
 					final JSONObject status = json.getJSONObject("Status");
@@ -351,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
 			try {
 				JSONObject body = new JSONObject();
 				body.put("code", connectCode);
+				body.put("version", appVersion);
 				body.put("message", knockData.message);
 
 				JSONObject json = postJson(hostIp, PORT, "triggerKnock", body);
