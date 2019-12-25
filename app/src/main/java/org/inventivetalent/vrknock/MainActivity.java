@@ -270,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
 			connection.setDoOutput(true);
 			connection.setRequestMethod("POST");
 			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setRequestProperty("User-Agent", "VRKnockApp/" + appVersion);
 
 			String jsonString = body.toString();
 			System.out.println(jsonString);
