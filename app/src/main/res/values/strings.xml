@@ -14,4 +14,6 @@
     <string name="currently_idle">Currently Idle</string>
     <string name="currently_playing">Currently Playing %s</string>
     <string name="connecting">Connecting...</string>
+    <string name="connection_info_updated">Connection Info Updated!</string>
+    <string name="failed_get_code">Failed to get code</string>
 </resources>

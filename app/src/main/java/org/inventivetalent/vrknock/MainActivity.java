@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -328,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+							Snackbar.make(findViewById(R.id.coordinatorLayout),msg,Snackbar.LENGTH_LONG).show();
 							updateActivity(game);
 						}
 					});
@@ -375,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+							Snackbar.make(findViewById(R.id.coordinatorLayout),msg,Snackbar.LENGTH_LONG).show();
 							updateActivity(game);
 						}
 					});
