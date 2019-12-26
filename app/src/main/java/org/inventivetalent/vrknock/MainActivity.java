@@ -111,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
 					editor.putString("connectCode", connectCode);
 					editor.apply();
 
+					Snackbar.make(findViewById(R.id.coordinatorLayout),R.string.connection_info_updated,Snackbar.LENGTH_SHORT).show();
+
 					reconnect();
 				}
 			}
