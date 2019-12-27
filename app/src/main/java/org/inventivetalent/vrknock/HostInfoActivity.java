@@ -8,10 +8,11 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -76,7 +77,7 @@ public class HostInfoActivity extends AppCompatActivity {
 		if (CODE_SCAN_REQUEST == requestCode) {
 			if (resultCode == RESULT_OK && data != null) {
 				String content = data.getStringExtra("qrContent");
-				if (content != null && content.startsWith("http://")) {
+				if (content != null && (content.startsWith("http://")||content.startsWith("https://"))) {
 					Uri uri = Uri.parse(content);
 					List<String> segments = uri.getPathSegments();
 					String host;
@@ -91,10 +92,10 @@ public class HostInfoActivity extends AppCompatActivity {
 
 					hostIpEditText.setText(host);
 					codeEditText.setText(code);
-					Toast.makeText(this, "Info Updated!", Toast.LENGTH_SHORT).show();
+					Snackbar.make(findViewById(R.id.coordinatorLayout),R.string.connection_info_updated,Snackbar.LENGTH_SHORT).show();
 				}
 			} else {
-				Toast.makeText(this, "Failed to get code", Toast.LENGTH_LONG).show();
+				Snackbar.make(findViewById(R.id.coordinatorLayout),R.string.failed_get_code,Snackbar.LENGTH_LONG).show();
 			}
 		}
 	}

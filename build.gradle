@@ -23,8 +23,8 @@ allprojects {
 }
 
 ext {
-    appVersionId = "22000100"
-    appVersionName = "0.1.0"
+    appVersionId = "22000200"
+    appVersionName = "0.2.0"
 }
 
 

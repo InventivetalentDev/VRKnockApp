@@ -10,8 +10,11 @@
     <string name="done">Done</string>
     <string name="message_to_show">Message to Show</string>
     <string name="failed_to_connect">Failed to connect!</string>
+    <string name="server_disconnect">Server closed connection</string>
     <string name="connected">Connected!</string>
     <string name="currently_idle">Currently Idle</string>
     <string name="currently_playing">Currently Playing %s</string>
     <string name="connecting">Connecting...</string>
+    <string name="connection_info_updated">Connection Info Updated!</string>
+    <string name="failed_get_code">Failed to get code</string>
 </resources>

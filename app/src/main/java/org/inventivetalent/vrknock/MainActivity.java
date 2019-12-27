@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,10 +36,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,8 +59,12 @@ public class MainActivity extends AppCompatActivity {
 
 	boolean isConnected = false;
 
-	public static final int PORT = 16945;
-	public static String appVersion = "0.0.0";
+	OkHttpClient client;
+	WebSocket    socket;
+	Callback     currentCallback = null;
+
+	public static final int    PORT       = 16945;
+	public static       String appVersion = "0.0.0";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
 		} catch (PackageManager.NameNotFoundException e) {
 			e.printStackTrace();
 		}
+
+		client = new OkHttpClient();
 
 		knockButton = findViewById(R.id.knockButton);
 		knockButton.setOnClickListener(new View.OnClickListener() {
@@ -93,10 +103,10 @@ public class MainActivity extends AppCompatActivity {
 		// ATTENTION: This was auto-generated to handle app links.
 		Intent appLinkIntent = getIntent();
 		String appLinkAction = appLinkIntent.getAction();
-		System.out.println("appLinkAction: "+appLinkAction);
+		System.out.println("appLinkAction: " + appLinkAction);
 		Uri appLinkData = appLinkIntent.getData();
-		System.out.println("appLinkData: "+appLinkData);
-		if(appLinkData!=null) {
+		System.out.println("appLinkData: " + appLinkData);
+		if (appLinkData != null) {
 			List<String> pathSegments = appLinkData.getPathSegments();
 			System.out.println(pathSegments);
 			if (pathSegments.size() > 0) {
@@ -109,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
 					editor.putString("hostIp", hostIp);
 					editor.putString("connectCode", connectCode);
 					editor.apply();
+
+					Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.connection_info_updated, Snackbar.LENGTH_SHORT).show();
 
 					reconnect();
 				}
@@ -140,18 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
 		progressBar.setVisibility(View.VISIBLE);
 
-		new ServerDiscoveryTask() {
-			@Override
-			protected void onPostExecute(String s) {
-				if (s != null) {
-					Log.i(TAG, "Found Host at " + s + ":" + PORT);
-					onConnectionEstablished();
-				} else {
-					onConnectionLost();
-				}
-
-			}
-		}.execute();
+		new ServerDiscoveryTask().execute();
 	}
 
 	void enableButton() {
@@ -263,49 +264,41 @@ public class MainActivity extends AppCompatActivity {
 		return null;
 	}
 
-	static JSONObject postJson(String host, int port, String path, JSONObject body) {
-		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL("http", host, port, path).openConnection();
-			connection.setDoInput(true);
-			connection.setDoOutput(true);
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setRequestProperty("User-Agent", "VRKnockApp/" + appVersion);
-
-			String jsonString = body.toString();
-			System.out.println(jsonString);
-
-			OutputStream out = connection.getOutputStream();
-			out.write(jsonString.getBytes("utf8"));
-			out.flush();
-			out.close();
-
-			//TODO: might wanna check the returned data
-			InputStream in = connection.getInputStream();
-			if (connection.getContentLength() > 2) {
-				JSONObject json = readJson(in);
-				if (json != null) {
-					Log.i(TAG, json.toString());
-					return json;
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+	void sendRequest(JSONObject body, Callback callback) {
+		if (MainActivity.this.socket == null) {
+			callback.call(null);
+			return;
 		}
-		return null;
+		if (callback != null) { currentCallback = callback; }
+
+		MainActivity.this.socket.send(body.toString());
 	}
 
-	abstract class ServerDiscoveryTask extends AsyncTask<Void, Void, String> {
+
+	class ServerDiscoveryTask extends AsyncTask<Void, Void, String> {
 
 		@Override
 		protected String doInBackground(Void... voids) {
 			if (hostIp != null) {// Try last host first
+				initSocket(hostIp);
 				if (testIp(hostIp)) {
 					return hostIp;
 				}
 			}
 
 			return null;
+		}
+
+		void initSocket(String host) {
+			if (MainActivity.this.socket != null) {
+				MainActivity.this.socket.close(1000,"opening new socket");
+				MainActivity.this.socket=null;
+			}
+
+			Request request = new Request.Builder().url("ws://" + host + ":" + PORT).build();
+			SocketListener socketListener = new SocketListener();
+			MainActivity.this.socket = client.newWebSocket(request, socketListener);
+//			client.dispatcher().executorService().shutdown();
 		}
 
 		String host(int ip0, int ip1, int ip2, int ip3) {
@@ -317,32 +310,55 @@ public class MainActivity extends AppCompatActivity {
 
 			try {
 				JSONObject body = new JSONObject();
+				body.put("action", "status");
 				body.put("code", connectCode);
 				body.put("version", appVersion);
-				JSONObject json = postJson(host, PORT, "status", body);
-				if (json != null) {
-					final JSONObject status = json.getJSONObject("Status");
+				sendRequest(body, new Callback() {
+					@Override
+					public void call(JSONObject json) {
+						if (json != null) {
+							try {
 
-					final String msg = status.getString("msg");
-					final String game = status.getString("game");
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
-							updateActivity(game);
+								final String msg = json.getString("msg");
+								final String game = json.getString("game");
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										try {
+											Snackbar.make(MainActivity.this.findViewById(R.id.coordinatorLayout), msg, Snackbar.LENGTH_LONG).show();
+										} catch (Exception e) {
+											Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();
+										}
+										updateActivity(game);
+									}
+								});
+
+								if (json.getInt("status") != 0) {
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										onConnectionLost();
+									}
+								});
+									return ;
+								}
+
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										onConnectionEstablished();
+									}
+								});
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
 						}
-					});
-
-					if (status.getInt("status") != 0) {
-						return false;
 					}
-
-					return true;
-				}
+				});
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-			return false;
+			return true;
 		}
 
 	}
@@ -362,35 +378,59 @@ public class MainActivity extends AppCompatActivity {
 			Log.i("VRKnocker", "Sending Knock to " + hostIp);
 			try {
 				JSONObject body = new JSONObject();
+				body.put("action", "triggerKnock");
 				body.put("code", connectCode);
 				body.put("version", appVersion);
 				body.put("message", knockData.message);
 
-				JSONObject json = postJson(hostIp, PORT, "triggerKnock", body);
-				if (json != null) {
-					JSONObject data = json.getJSONObject("Status");
+				sendRequest(body, new Callback() {
+					@Override
+					public void call(JSONObject json) {
+						if (json != null) {
+							try {
+								final String msg = json.getString("msg");
+								final String game = json.getString("game");
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										try {
+											Snackbar.make(MainActivity.this.findViewById(R.id.coordinatorLayout), msg, Snackbar.LENGTH_LONG).show();
+										} catch (Exception e) {
+											Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+										}
+										updateActivity(game);
+									}
+								});
 
-					final String msg = data.getString("msg");
-					final String game = data.getString("game");
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
-							updateActivity(game);
+								if (json.getInt("status") != 0) {
+									runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+											onConnectionLost();
+										}
+									});
+									return;
+								}
+
+								try {
+									Thread.sleep(2000);
+								} catch (InterruptedException ignored) {
+								}
+
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										enableButton();
+									}
+								});
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+
 						}
-					});
-
-					if (data.getInt("status") != 0) {
-						return false;
 					}
+				});
 
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException ignored) {
-					}
-
-					return true;
-				}
 
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -398,16 +438,75 @@ public class MainActivity extends AppCompatActivity {
 			return false;
 		}
 
-		@Override
-		protected void onPostExecute(Boolean aBoolean) {
-			super.onPostExecute(aBoolean);
+	}
 
-			if (!aBoolean) {
-				onConnectionLost();
-			} else {
-				enableButton();
-			}
+	class SocketListener extends WebSocketListener {
+
+		@Override
+		public void onOpen(WebSocket webSocket, Response response) {
+			super.onOpen(webSocket, response);
+			System.out.println("onOpen");
 		}
+
+		@Override
+		public void onMessage(WebSocket webSocket, String text) {
+			super.onMessage(webSocket, text);
+			System.out.println("onMessage");
+			System.out.println(text);
+
+			try {
+				JSONObject parsed = new JSONObject(text);
+				if (parsed.has("evt") && "status".equals(parsed.getString("evt")) && MainActivity.this.currentCallback != null) {
+					MainActivity.this.currentCallback.call(parsed);
+					MainActivity.this.currentCallback = null;
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+		}
+
+
+		@Override
+		public void onClosing(WebSocket webSocket, int code, String reason) {
+			super.onClosing(webSocket, code, reason);
+			System.out.println("onClosing");
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					onConnectionLost(R.string.server_disconnect);
+				}
+			});
+		}
+
+		@Override
+		public void onClosed(WebSocket webSocket, int code, String reason) {
+			super.onClosed(webSocket, code, reason);
+			System.out.println("onClosed");
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					onConnectionLost(R.string.server_disconnect);
+				}
+			});
+		}
+
+		@Override
+		public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+			super.onFailure(webSocket, t, response);
+			System.out.println("onFailure");
+			t.printStackTrace();
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					onConnectionLost(R.string.failed_to_connect);
+				}
+			});
+		}
+	}
+
+	interface Callback {
+		void call(JSONObject jsonObject);
 	}
 
 }
