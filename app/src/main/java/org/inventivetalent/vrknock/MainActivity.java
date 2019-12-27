@@ -500,10 +500,23 @@ public class MainActivity extends AppCompatActivity {
 
 		}
 
+
 		@Override
 		public void onClosing(WebSocket webSocket, int code, String reason) {
 			super.onClosing(webSocket, code, reason);
 			System.out.println("onClosing");
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					onConnectionLost(R.string.server_disconnect);
+				}
+			});
+		}
+
+		@Override
+		public void onClosed(WebSocket webSocket, int code, String reason) {
+			super.onClosed(webSocket, code, reason);
+			System.out.println("onClosed");
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
