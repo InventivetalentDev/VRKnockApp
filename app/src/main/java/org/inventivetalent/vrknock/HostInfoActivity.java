@@ -77,7 +77,7 @@ public class HostInfoActivity extends AppCompatActivity {
 		if (CODE_SCAN_REQUEST == requestCode) {
 			if (resultCode == RESULT_OK && data != null) {
 				String content = data.getStringExtra("qrContent");
-				if (content != null && content.startsWith("http://")) {
+				if (content != null && (content.startsWith("http://")||content.startsWith("https://"))) {
 					Uri uri = Uri.parse(content);
 					List<String> segments = uri.getPathSegments();
 					String host;

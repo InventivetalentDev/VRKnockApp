@@ -36,9 +36,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -277,37 +274,6 @@ public class MainActivity extends AppCompatActivity {
 		MainActivity.this.socket.send(body.toString());
 	}
 
-	static JSONObject postJson(String host, int port, String path, JSONObject body) {
-		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL("http", host, port, path).openConnection();
-			connection.setDoInput(true);
-			connection.setDoOutput(true);
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setRequestProperty("User-Agent", "VRKnockApp/" + appVersion);
-
-			String jsonString = body.toString();
-			System.out.println(jsonString);
-
-			OutputStream out = connection.getOutputStream();
-			out.write(jsonString.getBytes("utf8"));
-			out.flush();
-			out.close();
-
-			//TODO: might wanna check the returned data
-			InputStream in = connection.getInputStream();
-			if (connection.getContentLength() > 2) {
-				JSONObject json = readJson(in);
-				if (json != null) {
-					Log.i(TAG, json.toString());
-					return json;
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 
 	class ServerDiscoveryTask extends AsyncTask<Void, Void, String> {
 
@@ -325,14 +291,14 @@ public class MainActivity extends AppCompatActivity {
 
 		void initSocket(String host) {
 			if (MainActivity.this.socket != null) {
-				MainActivity.this.socket.close(0,"opening new socket");
+				MainActivity.this.socket.close(1000,"opening new socket");
 				MainActivity.this.socket=null;
 			}
 
 			Request request = new Request.Builder().url("ws://" + host + ":" + PORT).build();
 			SocketListener socketListener = new SocketListener();
 			MainActivity.this.socket = client.newWebSocket(request, socketListener);
-			client.dispatcher().executorService().shutdown();
+//			client.dispatcher().executorService().shutdown();
 		}
 
 		String host(int ip0, int ip1, int ip2, int ip3) {
