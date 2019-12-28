@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.UUID;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 	TextView    activityTextView;
 	EditText    messageEditText;
 
+	String clientId = null;
 	String hostIp      = null;
 	String connectCode = null;
 
@@ -136,6 +138,14 @@ public class MainActivity extends AppCompatActivity {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		hostIp = preferences.getString("hostIp", null);
 		connectCode = preferences.getString("connectCode", null);
+		clientId = preferences.getString("clientId", null);
+
+		if (clientId == null || clientId.isEmpty()) {
+			clientId = UUID.randomUUID().toString();
+		}
+		preferences.edit().putString("clientId", clientId).apply();
+
+		Log.i(TAG, "ClientId: " + clientId);
 
 		reconnect();
 	}
