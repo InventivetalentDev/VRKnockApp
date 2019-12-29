@@ -36,7 +36,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
 import java.util.UUID;
 
 import okhttp3.OkHttpClient;
@@ -55,9 +54,10 @@ public class MainActivity extends AppCompatActivity {
 	TextView    activityTextView;
 	EditText    messageEditText;
 
-	String clientId = null;
-	String hostIp      = null;
-	String connectCode = null;
+	String           clientId         = null;
+	String           host             = null;
+	String           connectCode      = null;
+	ConnectionMethod connectionMethod = ConnectionMethod.DIRECT;
 
 	boolean isConnected = false;
 
@@ -109,23 +109,22 @@ public class MainActivity extends AppCompatActivity {
 		Uri appLinkData = appLinkIntent.getData();
 		System.out.println("appLinkData: " + appLinkData);
 		if (appLinkData != null) {
-			List<String> pathSegments = appLinkData.getPathSegments();
-			System.out.println(pathSegments);
-			if (pathSegments.size() > 0) {
-				if (pathSegments.size() >= 2) {
-					hostIp = pathSegments.get(0);
-					connectCode = pathSegments.get(1);
+			KnockUrlParser.ParsedKnockInfo knockInfo = KnockUrlParser.parse(appLinkData);
+			if (knockInfo != null) {
+				host = knockInfo.host;
+				connectCode = knockInfo.code;
+				connectionMethod = knockInfo.connectionMethod;
 
-					SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-					SharedPreferences.Editor editor = preferences.edit();
-					editor.putString("hostIp", hostIp);
-					editor.putString("connectCode", connectCode);
-					editor.apply();
+				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+				SharedPreferences.Editor editor = preferences.edit();
+				editor.putString("host", host);
+				editor.putString("connectCode", connectCode);
+				editor.putString("connectionMethod", connectionMethod.name());
+				editor.apply();
 
-					Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.connection_info_updated, Snackbar.LENGTH_SHORT).show();
+				Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.connection_info_updated, Snackbar.LENGTH_SHORT).show();
 
-					reconnect();
-				}
+				reconnect();
 			}
 		}
 	}
@@ -136,9 +135,10 @@ public class MainActivity extends AppCompatActivity {
 		super.onResume();
 
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		hostIp = preferences.getString("hostIp", null);
+		host = preferences.getString("host", null);
 		connectCode = preferences.getString("connectCode", null);
 		clientId = preferences.getString("clientId", null);
+		connectionMethod = ConnectionMethod.valueOf(preferences.getString("connectionMethod", "DIRECT"));
 
 		if (clientId == null || clientId.isEmpty()) {
 			clientId = UUID.randomUUID().toString();
@@ -156,12 +156,14 @@ public class MainActivity extends AppCompatActivity {
 		knockButton.setEnabled(false);
 		statusTextView.setText(R.string.searching_host);
 
-		if (hostIp == null || connectCode == null) {
+		if (host == null || connectCode == null) {
 			startHostInfoActivity();
+			return;
 		}
 
 		progressBar.setVisibility(View.VISIBLE);
 
+		socketState = 0;
 		new ServerDiscoveryTask().execute();
 	}
 
@@ -281,18 +283,47 @@ public class MainActivity extends AppCompatActivity {
 		}
 		if (callback != null) { currentCallback = callback; }
 
+		if (connectionMethod == ConnectionMethod.BRIDGE) {
+			JSONObject payload = body;
+			body = new JSONObject();
+			try {
+				body.put("_type", "forward");
+				body.put("source", clientId);
+				body.put("target", host);
+				body.put("payload", payload);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+		}
+
 		MainActivity.this.socket.send(body.toString());
 	}
 
+	static int CLOSED      = 0;
+	static int OPENING     = 1;
+	static int OPEN        = 2;
+	static int REGISTERING = 3;
+	static int REGISTERED  = 4;
+
+	int socketState = CLOSED;
 
 	class ServerDiscoveryTask extends AsyncTask<Void, Void, String> {
 
 		@Override
 		protected String doInBackground(Void... voids) {
-			if (hostIp != null) {// Try last host first
-				initSocket(hostIp);
-				if (testIp(hostIp)) {
-					return hostIp;
+			if (host != null) {// Try last host first
+				if (socketState == CLOSED) {
+					initSocket(host);
+				}
+				if (connectionMethod == ConnectionMethod.DIRECT) {
+					if (socketState == OPEN) {
+						testIp(host);
+					}
+				} else if (connectionMethod == ConnectionMethod.BRIDGE) {
+					if (socketState == REGISTERED) {
+						testIp(host);
+					}
 				}
 			}
 
@@ -301,14 +332,22 @@ public class MainActivity extends AppCompatActivity {
 
 		void initSocket(String host) {
 			if (MainActivity.this.socket != null) {
-				MainActivity.this.socket.close(1000,"opening new socket");
-				MainActivity.this.socket=null;
+				MainActivity.this.socket.close(1000, "opening new socket");
+				MainActivity.this.socket = null;
 			}
-
-			Request request = new Request.Builder().url("ws://" + host + ":" + PORT).build();
+			Request request = null;
+			if (connectionMethod == ConnectionMethod.DIRECT) {
+				request = new Request.Builder().url("ws://" + host + ":" + PORT).build();
+			} else if (connectionMethod == ConnectionMethod.BRIDGE) {
+				request = new Request.Builder().url("wss://bridge.vrknock.app").addHeader("Origin", "ws://" + clientId + ".clients.vrknock.app:16945").build();
+			}
+			if (request == null) { return; }
+			socketState = OPENING;
 			SocketListener socketListener = new SocketListener();
+			System.out.println("Creating socket to " + request.url());
 			MainActivity.this.socket = client.newWebSocket(request, socketListener);
-//			client.dispatcher().executorService().shutdown();
+			//			client.dispatcher().executorService().shutdown();
+
 		}
 
 		String host(int ip0, int ip1, int ip2, int ip3) {
@@ -317,6 +356,7 @@ public class MainActivity extends AppCompatActivity {
 
 		boolean testIp(String host) {
 			Log.i("VRKnockDiscover", "Testing " + host + ":" + PORT + "...");
+			Log.i("VRKnockDiscover", connectionMethod.name());
 
 			try {
 				JSONObject body = new JSONObject();
@@ -326,6 +366,7 @@ public class MainActivity extends AppCompatActivity {
 				sendRequest(body, new Callback() {
 					@Override
 					public void call(JSONObject json) {
+						System.out.println(json);
 						if (json != null) {
 							try {
 
@@ -337,20 +378,20 @@ public class MainActivity extends AppCompatActivity {
 										try {
 											Snackbar.make(MainActivity.this.findViewById(R.id.coordinatorLayout), msg, Snackbar.LENGTH_LONG).show();
 										} catch (Exception e) {
-											Toast.makeText(MainActivity.this,msg,Toast.LENGTH_LONG).show();
+											Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
 										}
 										updateActivity(game);
 									}
 								});
 
 								if (json.getInt("status") != 0) {
-								runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										onConnectionLost();
-									}
-								});
-									return ;
+									runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+											onConnectionLost();
+										}
+									});
+									return;
 								}
 
 								runOnUiThread(new Runnable() {
@@ -385,7 +426,7 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		protected Boolean doInBackground(KnockData... knockDatas) {
 			KnockData knockData = knockDatas[0];
-			Log.i("VRKnocker", "Sending Knock to " + hostIp);
+			Log.i("VRKnocker", "Sending Knock to " + host);
 			try {
 				JSONObject body = new JSONObject();
 				body.put("action", "triggerKnock");
@@ -441,7 +482,6 @@ public class MainActivity extends AppCompatActivity {
 					}
 				});
 
-
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -456,6 +496,23 @@ public class MainActivity extends AppCompatActivity {
 		public void onOpen(WebSocket webSocket, Response response) {
 			super.onOpen(webSocket, response);
 			System.out.println("onOpen");
+
+			socketState = OPEN;
+
+			if (connectionMethod == ConnectionMethod.BRIDGE) {
+				socket.send("{\"_type\":\"register\",\"payload\":{\"type\":\"client\",\"clientId\":\"" + clientId + "\"}}");
+				System.out.println("Bridge Client registered");
+				socketState = REGISTERING;
+			} else {
+				System.out.println("connected to direct server");
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						onConnectionEstablished();
+					}
+				});
+			}
+
 		}
 
 		@Override
@@ -466,6 +523,16 @@ public class MainActivity extends AppCompatActivity {
 
 			try {
 				JSONObject parsed = new JSONObject(text);
+				if (parsed.has("_state")) {
+					String state = parsed.getString("_state");
+					System.out.println("State: " + state);
+					if (connectionMethod == ConnectionMethod.BRIDGE && "REGISTERED".equals(state)) {
+						socketState = REGISTERED;
+						new ServerDiscoveryTask().execute();
+					}
+					return;
+				}
+
 				if (parsed.has("evt") && "status".equals(parsed.getString("evt")) && MainActivity.this.currentCallback != null) {
 					MainActivity.this.currentCallback.call(parsed);
 					MainActivity.this.currentCallback = null;
@@ -475,7 +542,6 @@ public class MainActivity extends AppCompatActivity {
 			}
 
 		}
-
 
 		@Override
 		public void onClosing(WebSocket webSocket, int code, String reason) {
@@ -499,6 +565,8 @@ public class MainActivity extends AppCompatActivity {
 					onConnectionLost(R.string.server_disconnect);
 				}
 			});
+			socket = null;
+			socketState = CLOSED;
 		}
 
 		@Override
@@ -509,9 +577,10 @@ public class MainActivity extends AppCompatActivity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					onConnectionLost(R.string.failed_to_connect);
+					onConnectionLost(R.string.server_disconnect);
 				}
 			});
+			socket = null;
 		}
 	}
 
