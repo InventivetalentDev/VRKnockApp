@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 		knockButton.setEnabled(false);
 		statusTextView.setText(R.string.searching_host);
 
-		if (host == null || connectCode == null) {
+		if (host == null || connectCode == null || host.isEmpty() || connectCode.isEmpty()) {
 			startHostInfoActivity();
 			return;
 		}
