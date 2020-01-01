@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
 				startHostInfoActivity();
 				return true;
 			case R.id.downloadServer:
-				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://yeleha.co/vrknock-server-download")));
+				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://get.vrknock.app/server")));
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
