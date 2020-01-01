@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
 
 		@Override
 		protected String doInBackground(Void... voids) {
-			if (host != null) {// Try last host first
+			if (host != null&&!host.isEmpty()) {// Try last host first
 				if (socketState == CLOSED) {
 					initSocket(host);
 				}
