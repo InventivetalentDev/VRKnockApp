@@ -44,9 +44,13 @@ public class HostInfoActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View view) {
 				SharedPreferences.Editor editor = preferences.edit();
-				editor.putString("host", hostIpEditText.getText().toString());
-				editor.putString("connectCode", codeEditText.getText().toString());
-				editor.putString("connectionMethod",connectionMethod.name());
+
+				String host = hostIpEditText.getText().toString();
+				String code = codeEditText.getText().toString();
+
+				if (host.length() > 0) { editor.putString("host", host); }
+				if (code.length() > 0) { editor.putString("connectCode", code); }
+				if (connectionMethod != null) { editor.putString("connectionMethod", connectionMethod.name()); }
 				editor.apply();
 
 				finish();
@@ -79,11 +83,11 @@ public class HostInfoActivity extends AppCompatActivity {
 		if (CODE_SCAN_REQUEST == requestCode) {
 			if (resultCode == RESULT_OK && data != null) {
 				String content = data.getStringExtra("qrContent");
-				if (content != null && (content.startsWith("http://")||content.startsWith("https://"))) {
+				if (content != null && (content.startsWith("http://") || content.startsWith("https://"))) {
 					Uri uri = Uri.parse(content);
 					KnockUrlParser.ParsedKnockInfo knockInfo = KnockUrlParser.parse(uri);
 					if (knockInfo == null) {
-						Snackbar.make(findViewById(R.id.coordinatorLayout),R.string.failed_get_code,Snackbar.LENGTH_LONG).show();
+						Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.failed_get_code, Snackbar.LENGTH_LONG).show();
 						return;
 					}
 					System.out.println(knockInfo);
@@ -91,10 +95,10 @@ public class HostInfoActivity extends AppCompatActivity {
 					hostIpEditText.setText(knockInfo.host);
 					codeEditText.setText(knockInfo.code);
 					connectionMethod = knockInfo.connectionMethod;
-					Snackbar.make(findViewById(R.id.coordinatorLayout),R.string.connection_info_updated,Snackbar.LENGTH_SHORT).show();
+					Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.connection_info_updated, Snackbar.LENGTH_SHORT).show();
 				}
 			} else {
-				Snackbar.make(findViewById(R.id.coordinatorLayout),R.string.failed_get_code,Snackbar.LENGTH_LONG).show();
+				Snackbar.make(findViewById(R.id.coordinatorLayout), R.string.failed_get_code, Snackbar.LENGTH_LONG).show();
 			}
 		}
 	}
