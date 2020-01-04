@@ -21,4 +21,8 @@
     <string name="about_dev_description">Developed by inventivetalent</string>
     <string name="about_dev_link">https://inventivetalent.org</string>
     <string name="about_translations">Translations</string>
+    <string name="connect">Connect</string>
+    <string name="change_host_info">Change Host Info</string>
+    <string name="download_server_app">Download Server App</string>
+    <string name="about">About</string>
 </resources>

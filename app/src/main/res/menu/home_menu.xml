@@ -3,14 +3,14 @@
 
     <item
             android:id="@+id/reconnectItem"
-            android:title="Connect" />
+            android:title="@string/connect" />
     <item
             android:id="@+id/setHostItem"
-            android:title="Change Host Info" />
+            android:title="@string/change_host_info" />
     <item
             android:id="@+id/downloadServer"
-            android:title="Download Server App"/>
+            android:title="@string/download_server_app"/>
     <item
             android:id="@+id/about"
-            android:title="About"/>
+            android:title="@string/about"/>
 </menu>
