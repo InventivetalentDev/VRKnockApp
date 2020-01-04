@@ -364,6 +364,7 @@ public class MainActivity extends AppCompatActivity {
 				JSONObject body = new JSONObject();
 				body.put("action", "status");
 				body.put("code", connectCode);
+				body.put("platform", "android");
 				body.put("version", appVersion);
 				sendRequest(body, new Callback() {
 					@Override
@@ -434,6 +435,7 @@ public class MainActivity extends AppCompatActivity {
 				body.put("action", "triggerKnock");
 				body.put("code", connectCode);
 				body.put("version", appVersion);
+				body.put("platform", "android");
 				body.put("message", knockData.message);
 
 				sendRequest(body, new Callback() {
