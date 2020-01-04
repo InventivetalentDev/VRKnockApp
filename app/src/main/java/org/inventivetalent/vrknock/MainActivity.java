@@ -526,9 +526,19 @@ public class MainActivity extends AppCompatActivity {
 				if (parsed.has("_state")) {
 					String state = parsed.getString("_state");
 					System.out.println("State: " + state);
-					if (connectionMethod == ConnectionMethod.BRIDGE && "REGISTERED".equals(state)) {
-						socketState = REGISTERED;
-						new ServerDiscoveryTask().execute();
+					if(connectionMethod == ConnectionMethod.BRIDGE) {
+						if ("REGISTERED".equals(state)) {
+							socketState = REGISTERED;
+							new ServerDiscoveryTask().execute();
+						}
+						if ("DISCONNECT".equals(state)) {
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									onConnectionLost(R.string.server_disconnect);
+								}
+							});
+						}
 					}
 					return;
 				}
