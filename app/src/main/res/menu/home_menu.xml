@@ -10,4 +10,7 @@
     <item
             android:id="@+id/downloadServer"
             android:title="Download Server App"/>
+    <item
+            android:id="@+id/about"
+            android:title="About"/>
 </menu>

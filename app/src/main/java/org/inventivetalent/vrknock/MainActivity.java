@@ -248,6 +248,9 @@ public class MainActivity extends AppCompatActivity {
 			case R.id.downloadServer:
 				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://get.vrknock.app/server")));
 				return true;
+			case R.id.about:
+				startActivity(new Intent(this, AboutActivity.class));
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}

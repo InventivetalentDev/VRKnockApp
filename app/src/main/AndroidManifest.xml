@@ -15,11 +15,13 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             android:usesCleartextTraffic="true">
+        <activity android:name=".AboutActivity"></activity>
+
         <meta-data
                 android:name="com.google.android.gms.ads.APPLICATION_ID"
                 android:value="ca-app-pub-2604356629473365~1808998787" />
 
-        <activity android:name=".CodeScannerActivity"></activity>
+        <activity android:name=".CodeScannerActivity" />
         <activity
                 android:name=".HostInfoActivity"
                 android:label="@string/title_activity_host_info"
@@ -39,9 +41,9 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                        android:scheme="https"
                         android:host="vrknock.app"
-                        android:path="/settings" />
+                        android:path="/settings"
+                        android:scheme="https" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -50,9 +52,9 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                        android:scheme="http"
                         android:host="vrknock.app"
-                        android:path="/settings" />
+                        android:path="/settings"
+                        android:scheme="http" />
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity">
@@ -74,9 +76,9 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                        android:scheme="https"
                         android:host="vrknock.app"
-                        android:pathPattern="/.*/.*" />
+                        android:pathPattern="/.*/.*"
+                        android:scheme="https" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -85,29 +87,29 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                        android:scheme="http"
-                        android:host="vrknock.app" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                        android:scheme="https"
-                        android:host="vrknock.app" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                        android:scheme="http"
                         android:host="vrknock.app"
-                        android:pathPattern="/.*/.*" />
+                        android:scheme="http" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:host="vrknock.app"
+                        android:scheme="https" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                        android:host="vrknock.app"
+                        android:pathPattern="/.*/.*"
+                        android:scheme="http" />
             </intent-filter>
         </activity>
     </application>

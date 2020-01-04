@@ -17,4 +17,8 @@
     <string name="connecting">Connecting...</string>
     <string name="connection_info_updated">Connection Info Updated!</string>
     <string name="failed_get_code">Failed to get code</string>
+    <string name="about_version">Version %s</string>
+    <string name="about_dev_description">Developed by inventivetalent</string>
+    <string name="about_dev_link">https://inventivetalent.org</string>
+    <string name="about_translations">Translations</string>
 </resources>
