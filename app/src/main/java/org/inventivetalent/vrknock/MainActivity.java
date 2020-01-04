@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
 	@Deprecated
 	void onConnectionLost(String reason) {
 		isConnected = false;
+		socketState= CLOSED;
 
 		progressBar.setVisibility(View.INVISIBLE);
 		disableButton();
@@ -196,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
 	void onConnectionLost(@StringRes int res) {
 		isConnected = false;
+		socketState= CLOSED;
 
 		progressBar.setVisibility(View.INVISIBLE);
 		disableButton();
