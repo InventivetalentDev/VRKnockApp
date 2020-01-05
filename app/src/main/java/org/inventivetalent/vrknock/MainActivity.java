@@ -1,6 +1,7 @@
 package org.inventivetalent.vrknock;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -305,6 +306,25 @@ public class MainActivity extends AppCompatActivity {
 		MainActivity.this.socket.send(body.toString());
 	}
 
+	void checkVersion(final String serverVersion) {
+		int v = VersionComparator.compareVersions(appVersion, serverVersion);
+		if (v == VersionComparator.OUTDATED_SERVER) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					new AlertDialog.Builder(MainActivity.this).setMessage(getString(R.string.outdated_server, serverVersion)).show();
+				}
+			});
+		} else if (v == VersionComparator.OUTDATED_CLIENT) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					new AlertDialog.Builder(MainActivity.this).setMessage(getString(R.string.outdated_client)).show();
+				}
+			});
+		}
+	}
+
 	static int CLOSED      = 0;
 	static int OPENING     = 1;
 	static int OPEN        = 2;
@@ -390,6 +410,8 @@ public class MainActivity extends AppCompatActivity {
 									}
 								});
 
+								checkVersion(json.getString("version"));
+
 								if (json.getInt("status") != 0) {
 									runOnUiThread(new Runnable() {
 										@Override
@@ -459,6 +481,8 @@ public class MainActivity extends AppCompatActivity {
 										updateActivity(game);
 									}
 								});
+
+								checkVersion(json.getString("version"));
 
 								if (json.getInt("status") != 0) {
 									runOnUiThread(new Runnable() {
