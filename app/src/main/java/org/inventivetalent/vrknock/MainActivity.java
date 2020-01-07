@@ -152,8 +152,6 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	void reconnect() {
-		Toast.makeText(this, R.string.connecting, Toast.LENGTH_LONG).show();
-
 		knockButton.setEnabled(false);
 		statusTextView.setText(R.string.searching_host);
 
@@ -164,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
 
 		progressBar.setVisibility(View.VISIBLE);
 
+		Toast.makeText(this, R.string.connecting, Toast.LENGTH_LONG).show();
+		
 		socketState = 0;
 		new ServerDiscoveryTask().execute();
 	}
