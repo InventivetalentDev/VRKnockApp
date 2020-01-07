@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -29,6 +30,11 @@ public class HostInfoActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_host_info);
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(HostInfoActivity.this);
 

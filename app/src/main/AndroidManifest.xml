@@ -33,8 +33,7 @@
         <activity
                 android:name=".HostInfoActivity"
                 android:label="@string/title_activity_host_info"
-                android:parentActivityName=".MainActivity"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:parentActivityName=".MainActivity">
             <tools:validation testUrl="https://vrknock.app/settings" />
             <tools:validation testUrl="http://vrknock.app/settings" />
 
