@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	void reconnect() {
-		knockButton.setEnabled(false);
+		disableButton();
 		statusTextView.setText(R.string.searching_host);
 
 		if (host == null || connectCode == null || host.isEmpty() || connectCode.isEmpty()) {
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 		progressBar.setVisibility(View.VISIBLE);
 
 		Toast.makeText(this, R.string.connecting, Toast.LENGTH_LONG).show();
-		
+
 		socketState = 0;
 		new ServerDiscoveryTask().execute();
 	}
