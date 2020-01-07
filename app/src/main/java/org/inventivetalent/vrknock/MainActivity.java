@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 	String           connectCode      = null;
 	ConnectionMethod connectionMethod = ConnectionMethod.DIRECT;
 
+	long lastHostInfoAutoOpen = 0;
+
 	boolean isConnected = false;
 
 	OkHttpClient client;
@@ -156,7 +158,11 @@ public class MainActivity extends AppCompatActivity {
 		statusTextView.setText(R.string.searching_host);
 
 		if (host == null || connectCode == null || host.isEmpty() || connectCode.isEmpty()) {
-			startHostInfoActivity();
+			long now = System.currentTimeMillis();
+			if (now - lastHostInfoAutoOpen > 60000) {
+				startHostInfoActivity();
+				lastHostInfoAutoOpen = now;
+			}
 			return;
 		}
 
@@ -189,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
 	@Deprecated
 	void onConnectionLost(String reason) {
 		isConnected = false;
-		socketState= CLOSED;
+		socketState = CLOSED;
 
 		progressBar.setVisibility(View.INVISIBLE);
 		disableButton();
@@ -198,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
 	void onConnectionLost(@StringRes int res) {
 		isConnected = false;
-		socketState= CLOSED;
+		socketState = CLOSED;
 
 		progressBar.setVisibility(View.INVISIBLE);
 		disableButton();
@@ -340,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
 
 		@Override
 		protected String doInBackground(Void... voids) {
-			if (host != null&&!host.isEmpty()) {// Try last host first
+			if (host != null && !host.isEmpty()) {// Try last host first
 				if (socketState == CLOSED) {
 					initSocket(host);
 				}
@@ -560,7 +566,7 @@ public class MainActivity extends AppCompatActivity {
 				if (parsed.has("_state")) {
 					String state = parsed.getString("_state");
 					System.out.println("State: " + state);
-					if(connectionMethod == ConnectionMethod.BRIDGE) {
+					if (connectionMethod == ConnectionMethod.BRIDGE) {
 						if ("REGISTERED".equals(state)) {
 							socketState = REGISTERED;
 							new ServerDiscoveryTask().execute();
