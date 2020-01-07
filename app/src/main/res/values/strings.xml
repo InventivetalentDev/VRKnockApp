@@ -28,4 +28,5 @@
     <string name="outdated_server">The Server Version (%s) is Outdated! Please Install the Latest Version.</string>
     <string name="outdated_client">The App Version is Outdated! Either Updated the App or Install an Older Server Version.</string>
     <string name="help">Help</string>
+    <string name="missing_host_info">Missing Host Info!</string>
 </resources>

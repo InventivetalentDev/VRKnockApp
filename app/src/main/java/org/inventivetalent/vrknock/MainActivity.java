@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
 		statusTextView.setText(R.string.searching_host);
 
 		if (host == null || connectCode == null || host.isEmpty() || connectCode.isEmpty()) {
+			statusTextView.setText(R.string.missing_host_info);
 			long now = System.currentTimeMillis();
 			if (now - lastHostInfoAutoOpen > 60000) {
 				startHostInfoActivity();
