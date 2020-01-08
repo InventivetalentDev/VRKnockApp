@@ -3,7 +3,7 @@
     <string name="title_activity_host_info">Host Info</string>
     <string name="default_notification_message">Someone Wants Your Attention!</string>
     <string name="knock">Knock</string>
-    <string name="searching_host">Searching Host...</string>
+    <string name="searching_host">Searching Host…</string>
     <string name="scan_code">Scan Code</string>
     <string name="connection_code">Connection Code</string>
     <string name="host_ip">Host IP</string>
@@ -14,7 +14,7 @@
     <string name="connected">Connected!</string>
     <string name="currently_idle">Currently Idle</string>
     <string name="currently_playing">Currently Playing %s</string>
-    <string name="connecting">Connecting...</string>
+    <string name="connecting">Connecting…</string>
     <string name="connection_info_updated">Connection Info Updated!</string>
     <string name="failed_get_code">Failed to get code</string>
     <string name="about_version">Version %s</string>
