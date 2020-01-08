@@ -15,7 +15,8 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             android:usesCleartextTraffic="true">
-        <activity android:name=".AboutActivity">
+        <activity android:name=".AboutActivity"
+                android:label="@string/title_activity_about">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value="org.inventivetalent.vrknock.MainActivity" />

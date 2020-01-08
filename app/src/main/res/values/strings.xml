@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">VRKnock</string>
-    <string name="title_activity_host_info">HostInfoActivity</string>
+    <string name="title_activity_host_info">Host Info</string>
     <string name="default_notification_message">Someone Wants Your Attention!</string>
     <string name="knock">Knock</string>
     <string name="searching_host">Searching Host...</string>
@@ -29,4 +29,5 @@
     <string name="outdated_client">The App Version is Outdated! Either Updated the App or Install an Older Server Version.</string>
     <string name="help">Help</string>
     <string name="missing_host_info">Missing Host Info!</string>
+    <string name="title_activity_about">About</string>
 </resources>
